@@ -1,4 +1,5 @@
 from random import sample
+import re
 import requests
 import json
 import os
@@ -14,8 +15,7 @@ def search_endpoint(API_KEY, title, results_num):
         url = f'https://www.googleapis.com/youtube/v3/search/?key={API_KEY}&part=snippet&max_results={results_num}&q={title}'
         json_url = requests.get(url)
         search_data = json.loads(json_url.text)
-        for i in range(0, len(search_data['items'])):
-            return search_data['items'][i]
+        return search_data['items'][0]['snippet']
             
     except:
         print("Something went wrong.")
