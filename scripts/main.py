@@ -1,37 +1,57 @@
+from calendar import c
+from textwrap import indent
+from typing import final
 import pandas as pd
 from dotenv import load_dotenv
 import os
 import time
-from tqdm import tqdm
-from search_script import search_endpoint
-
-API_KEY = os.getenv("API_KEY")
-
-# Number of results from a single API call
-results_num = 1
+from pathlib import Path
+import json
+from googleapiclient.discovery import build
 
 # environment variable
-load_dotenv() 
+load_dotenv(Path("../.env")) 
 
-final_data_dict = []
+# Calling the API with pyyoutube
+API_KEY = os.getenv("API_KEY")
 
-def local_data(idx):
-    sample_titles = pd.read_csv('../data/sample-titles.csv')
-    titles_list = sample_titles.values.tolist()
-    return titles_list[idx]
+youtube = build('youtube', 'v3', developerKey=API_KEY)
 
-def main():
+# Number of results from a single API call
+results_count = 50
 
-    sample_len = pd.read_csv('../data/sample-titles.csv')
-    titles_len = sample_len.values.tolist()
+def channel_details(c_id):
+    # channels API endpoint.
+    res = youtube.channels().list(id=c_id, 
+                                 part='contentDetails').execute()
+    return res['items'][0]['contentDetails']['relatedPlaylists']['uploads']                           
     
-    for num in tqdm(range(0, len(titles_len))):
-        res = search_endpoint(API_KEY, local_data(num), results_num)
-        final_data_dict.append(res)
-       
+def video_details(channel_id, query_counts):
+    videos = []
+    next_page_token = None
+
+    while 1:
+        # playlistItems API endpoint.   
+        res = youtube.playlistItems().list(playlistId=channel_id,
+                                                part='snippet',
+                                                maxResults=query_counts,
+                                                pageToken=next_page_token).execute()               
+        videos += res['items']
+        next_page_token = res.get('nextPageToken')
+            
+        if next_page_token is None:
+            break
+    return videos
+
+        
+def main():
+    channel_upload_id = channel_details("UCEdcHmauNQ0gxzpyAR69asQ")
+    videos_list = video_details(channel_upload_id, results_count)
+    with open("test-data.txt", "w") as file:
+        json.dump(videos_list, file, indent=4, sort_keys=True)    
+
 if __name__ == '__main__':
     start_time = time.time()
     main()
     end_time = time.time()
     print(f'Completed in {end_time - start_time} seconds')
-    print(final_data_dict)
