@@ -43,12 +43,14 @@ def video_details(channel_id, query_counts):
             break
     return videos
 
+def formatted_print(obj):
+    text = json.dumps(obj, indent=4, sort_keys=True)
+    print(text)
         
 def main():
     channel_upload_id = channel_details("UCEdcHmauNQ0gxzpyAR69asQ")
     videos_list = video_details(channel_upload_id, results_count)
-    with open("test-data.txt", "w") as file:
-        json.dump(videos_list, file, indent=4, sort_keys=True)    
+    formatted_print(videos_list)
 
 if __name__ == '__main__':
     start_time = time.time()
