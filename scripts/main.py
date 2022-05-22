@@ -1,4 +1,5 @@
 from calendar import c
+from random import sample
 from textwrap import indent
 from typing import final
 import pandas as pd
@@ -12,19 +13,42 @@ from googleapiclient.discovery import build
 # environment variable
 load_dotenv(Path("../.env")) 
 
-# Calling the API with pyyoutube
+# Get API key
 API_KEY = os.getenv("API_KEY")
-
 youtube = build('youtube', 'v3', developerKey=API_KEY)
 
 # Number of results from a single API call
 results_count = 50
 
+# Reading sample csv to fetch youtube queries
+sample_queries = pd.read_csv("../data/sample-titles.csv")
+
+channel_id_dict = {
+    'channelId': [],
+    'channelTitle': [],
+}
+
+def get_channel_id(df):
+     for queries in range(len(df)):
+        time.sleep(1)
+        try:
+            # Search Endpoint
+            search_response = youtube.search().list(part='snippet',
+                                        maxResults=2,
+                                        q=df.loc[queries]).execute()
+
+            channel_id_dict['channelId'].append(search_response['items'][0]['snippet']['channelId'])
+            channel_id_dict['channelTitle'].append(search_response['items'][0]['snippet']['channelTitle'])
+
+        except:
+            print("Something went wrong.")
+
+
 def channel_details(c_id):
     # channels API endpoint.
-    res = youtube.channels().list(id=c_id, 
+    channel_response = youtube.channels().list(id=c_id, 
                                  part='contentDetails').execute()
-    return res['items'][0]['contentDetails']['relatedPlaylists']['uploads']                           
+    return channel_response['items'][0]['contentDetails']['relatedPlaylists']['uploads']                           
     
 def video_details(channel_id, query_counts):
     videos = []
@@ -32,12 +56,12 @@ def video_details(channel_id, query_counts):
 
     while 1:
         # playlistItems API endpoint.   
-        res = youtube.playlistItems().list(playlistId=channel_id,
+        video_response = youtube.playlistItems().list(playlistId=channel_id,
                                                 part='snippet',
                                                 maxResults=query_counts,
                                                 pageToken=next_page_token).execute()               
-        videos += res['items']
-        next_page_token = res.get('nextPageToken')
+        videos += video_response['items']
+        next_page_token = video_response.get('nextPageToken')
             
         if next_page_token is None:
             break
@@ -48,9 +72,11 @@ def formatted_print(obj):
     print(text)
         
 def main():
-    channel_upload_id = channel_details("UCEdcHmauNQ0gxzpyAR69asQ")
-    videos_list = video_details(channel_upload_id, results_count)
-    formatted_print(videos_list)
+    # channel_upload_id = channel_details("UCEdcHmauNQ0gxzpyAR69asQ")
+    # videos_list = video_details(channel_upload_id, results_count)
+    # formatted_print(videos_list)
+    get_channel_id(sample_queries)
+    print(channel_id_dict)
 
 if __name__ == '__main__':
     start_time = time.time()
