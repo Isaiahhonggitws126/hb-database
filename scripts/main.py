@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import os
 import time
 from pathlib import Path
+from tqdm import tqdm
 import json
 from googleapiclient.discovery import build
 
@@ -29,7 +30,7 @@ channel_id_dict = {
 }
 
 def get_channel_id(df):
-     for queries in range(len(df)):
+     for queries in tqdm(range(len(df))):
         time.sleep(1)
         try:
             # Search Endpoint
@@ -72,11 +73,12 @@ def formatted_print(obj):
     print(text)
         
 def main():
-    # channel_upload_id = channel_details("UCEdcHmauNQ0gxzpyAR69asQ")
-    # videos_list = video_details(channel_upload_id, results_count)
-    # formatted_print(videos_list)
     get_channel_id(sample_queries)
-    print(channel_id_dict)
+    for id in channel_id_dict['channelId']:
+        time.sleep(5)
+        channel_upload_id = channel_details(id)
+        videos_list = video_details(channel_upload_id, results_count)
+        formatted_print(videos_list)
 
 if __name__ == '__main__':
     start_time = time.time()
