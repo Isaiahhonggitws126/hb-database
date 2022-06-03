@@ -4,8 +4,6 @@ import time
 from pathlib import Path
 from tqdm import tqdm
 import json
-from pandas import json_normalize
-import pandas as pd
 from googleapiclient.discovery import build
 
 # environment variable
@@ -34,10 +32,10 @@ def get_channel_id(df):
 
         except:
             print("Something went wrong.")
-
+    
 
 def channel_details(c_id):
-    # channels API endpoint.
+    # Channels API endpoint.
     channel_response = youtube.channels().list(id=c_id, 
                                  part='contentDetails').execute()
     return channel_response['items'][0]['contentDetails']['relatedPlaylists']['uploads']                           
