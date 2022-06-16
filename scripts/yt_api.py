@@ -36,10 +36,13 @@ def get_channel_id(df):
 
 def channel_details(c_id):
     # Channels API endpoint.
-    channel_response = youtube.channels().list(id=c_id, 
-                                 part='contentDetails').execute()
-    return channel_response['items'][0]['contentDetails']['relatedPlaylists']['uploads']                           
-    
+    try:
+        channel_response = youtube.channels().list(id=c_id, 
+                                    part='contentDetails').execute()
+        return channel_response['items'][0]['contentDetails']['relatedPlaylists']['uploads']                           
+    except:
+        print("Something went wrong.")
+        
 def video_details(channel_id):
     videos = []
     next_page_token = None
