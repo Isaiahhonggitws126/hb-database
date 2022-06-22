@@ -9,3 +9,5 @@ These are python scripts to extract JSON data from the [Youtube Data API](https:
 3. Get your [Youtube API key](https://developers.google.com/youtube/registering_an_application) and create a `.env` file within the directory that references your API key. Check out this [video](https://www.youtube.com/watch?v=YdgIWTYQ69A) to learn how to do this. 
 4. Activate the Python virtualenv `(your-virtual-env)\Scripts\activate`
 5. Running the script. `python main.py` or `python3 main.py`
+
+![alt text](Project%20Diagram.drawio.png)
